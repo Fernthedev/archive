@@ -8,6 +8,9 @@ import '../bzip2_decoder.dart';
 import '../gzip_decoder.dart';
 import '../tar_decoder.dart';
 import '../util/input_stream.dart';
+import '../util/output_file_stream.dart';
+
+import 'package:posix/posix.dart' as posix;
 import '../xz_decoder.dart';
 import '../zip_decoder.dart';
 import 'input_file_stream.dart';
@@ -277,6 +280,12 @@ Future<void> extractFileToDisk(String inputPath, String outputPath,
         } catch (err) {
           //
         }
+
+        if ((Platform.isMacOS || Platform.isLinux || Platform.isAndroid) &&
+            posix.isPosixSupported) {
+          posix.chmod(filePath, file.unixPermissions.toRadixString(8));
+        }
+        
         futures.add(output.close());
       }
     }
